@@ -16,9 +16,8 @@ import (
 )
 
 const (
-	spreadsheetID = "1iuB11WTxiYP83TTuP_k3lhmCA_Qt6FUpLVAkP8Nu0w0"
-	fmtReadRange  = "Schedule!A%d:E"
-	dateFormat    = "15:04 02.01.2006"
+	fmtReadRange = "Schedule!A%d:E"
+	dateFormat   = "15:04 02.01.2006"
 )
 
 type Sheets struct {
@@ -26,7 +25,7 @@ type Sheets struct {
 	SpreadsheetID string
 }
 
-func InitSheets(keyFileName string) (*Sheets, error) {
+func InitSheets(keyFileName string, spreadsheetID string) (*Sheets, error) {
 	creds, err := os.ReadFile(keyFileName)
 	if err != nil {
 		log.Printf("Unable to read credentials file: %v", err)
@@ -55,7 +54,7 @@ func (sh *Sheets) SyncGames(repo *database.Repository) {
 	}
 
 	readRange := fmt.Sprintf(fmtReadRange, checkpoint.Line+1)
-	response, err := sh.Services.Spreadsheets.Values.Get(spreadsheetID, readRange).Do()
+	response, err := sh.Services.Spreadsheets.Values.Get(sh.SpreadsheetID, readRange).Do()
 	if err != nil {
 		log.Panic(err)
 	}

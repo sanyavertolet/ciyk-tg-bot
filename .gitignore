@@ -1,5 +1,4 @@
 .fleet
 .DS_Store
-config.json
-ciyk.db
-google-sheets-credentials.json
+*.db
+*.json

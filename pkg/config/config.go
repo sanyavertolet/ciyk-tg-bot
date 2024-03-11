@@ -9,6 +9,7 @@ type Config struct {
 	TelegramBotToken        string `json:"telegramBotToken"`
 	DatabaseFileName        string `json:"databaseFileName"`
 	GoogleSheetsKeyFileName string `json:"googleSheetsKeyFileName"`
+	GoogleSpreadsheetID     string `json:"googleSpreadsheetId"`
 }
 
 func LoadConfig(filePath string) (*Config, error) {
