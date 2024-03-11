@@ -17,13 +17,16 @@ func WillComeKeyboard(gameId uint) *tgbotapi.InlineKeyboardMarkup {
 	return &tgbotapi.InlineKeyboardMarkup{InlineKeyboard: [][]tgbotapi.InlineKeyboardButton{signRow, toMenuRow}}
 }
 
-func SignKeyboard(gameId uint) *tgbotapi.InlineKeyboardMarkup {
-	sign := tgbotapi.NewInlineKeyboardButtonData("Записаться", fmt.Sprintf("sign %d", gameId))
-	signRow := tgbotapi.NewInlineKeyboardRow(sign)
+func SignKeyboard(game model.Game) *tgbotapi.InlineKeyboardMarkup {
+	var rows [][]tgbotapi.InlineKeyboardButton
+	if game.IsRegistrationOpen == true {
+		sign := tgbotapi.NewInlineKeyboardButtonData("Записаться", fmt.Sprintf("sign %d", game.ID))
+		rows = append(rows, tgbotapi.NewInlineKeyboardRow(sign))
+	}
 	toMenu := tgbotapi.NewInlineKeyboardButtonData("К меню", "tomenu")
-	toMenuRow := tgbotapi.NewInlineKeyboardRow(toMenu)
+	rows = append(rows, tgbotapi.NewInlineKeyboardRow(toMenu))
 
-	return &tgbotapi.InlineKeyboardMarkup{InlineKeyboard: [][]tgbotapi.InlineKeyboardButton{signRow, toMenuRow}}
+	return &tgbotapi.InlineKeyboardMarkup{InlineKeyboard: rows}
 }
 
 func UnsignKeyboard(gameId uint) *tgbotapi.InlineKeyboardMarkup {
@@ -33,7 +36,7 @@ func UnsignKeyboard(gameId uint) *tgbotapi.InlineKeyboardMarkup {
 	toMenuRow := tgbotapi.NewInlineKeyboardRow(toMenu)
 
 	return &tgbotapi.InlineKeyboardMarkup{InlineKeyboard: [][]tgbotapi.InlineKeyboardButton{unsignRow, toMenuRow}}
-} 
+}
 
 func GoToMainMenuKeyboard() *tgbotapi.InlineKeyboardMarkup {
 	toMenu := tgbotapi.NewInlineKeyboardButtonData("К меню", "tomenu")
@@ -58,32 +61,32 @@ func MainMenuKeyboard() *tgbotapi.InlineKeyboardMarkup {
 func GamesMenuKeyboard(games []model.Game, page int, callbackName string) *tgbotapi.InlineKeyboardMarkup {
 	var rows [][]tgbotapi.InlineKeyboardButton
 	for i := range pageSize {
-		gameIndex := page * pageSize + i
+		gameIndex := page*pageSize + i
 		if gameIndex < len(games) {
 			text := games[gameIndex].Name
 			data := "game " + strconv.Itoa(int(games[gameIndex].ID))
 			rows = append(rows, tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData(text, data)))
 		}
 	}
-	
+
 	var paginationButtons []tgbotapi.InlineKeyboardButton
 	if page > 0 {
 		paginationButtons = append(
 			paginationButtons,
-			tgbotapi.NewInlineKeyboardButtonData("<", callbackName + " " + strconv.Itoa(page - 1)),
+			tgbotapi.NewInlineKeyboardButtonData("<", callbackName+" "+strconv.Itoa(page-1)),
 		)
 	}
 	paginationButtons = append(
 		paginationButtons,
 		tgbotapi.NewInlineKeyboardButtonData("К меню", "tomenu"),
 	)
-	if (page + 1) * pageSize < len(games) {
+	if (page+1)*pageSize < len(games) {
 		paginationButtons = append(
 			paginationButtons,
-			tgbotapi.NewInlineKeyboardButtonData(">", fmt.Sprintf("%s %d", callbackName, page + 1)),
+			tgbotapi.NewInlineKeyboardButtonData(">", fmt.Sprintf("%s %d", callbackName, page+1)),
 		)
 	}
-	
+
 	paginationRow := tgbotapi.NewInlineKeyboardRow(paginationButtons...)
 
 	return &tgbotapi.InlineKeyboardMarkup{InlineKeyboard: append(rows, paginationRow)}

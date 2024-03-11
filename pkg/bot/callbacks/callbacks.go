@@ -35,7 +35,7 @@ func SignCallback(
 		log.Print("Could not send message to user")
 		return
 	}
-	}
+}
 
 func UnsignCallback(
 	bot *tgapi.BotAPI,
@@ -59,7 +59,7 @@ func UnsignCallback(
 		log.Print("Could not send message to user")
 		return
 	}
-	}
+}
 
 func ShowMenuCallback(bot *tgapi.BotAPI, update tgapi.Update) {
 	DeleteMessage(bot, update.FromChat().ID, update.CallbackQuery.Message.MessageID)
@@ -68,6 +68,7 @@ func ShowMenuCallback(bot *tgapi.BotAPI, update tgapi.Update) {
 }
 
 func ShowGame(bot *tgapi.BotAPI, update tgapi.Update, repo *database.Repository, args []string) {
+	DeleteMessage(bot, update.FromChat().ID, update.CallbackQuery.Message.MessageID)
 	gameId, err := strconv.Atoi(args[0])
 	if err != nil {
 		log.Panic(err)
@@ -75,23 +76,25 @@ func ShowGame(bot *tgapi.BotAPI, update tgapi.Update, repo *database.Repository,
 
 	game, err := repo.FindGameById(uint(gameId))
 	if err != nil {
-		log.Panic(err) 
+		log.Panic(err)
 	}
 
 	users, err := repo.FindUsersByGameIdOrderedByRegistrationTime(game.ID)
 	if err != nil {
-		log.Panic(err) 
+		log.Panic(err)
 	}
 
 	var messageBuilder strings.Builder
 
 	messageBuilder.WriteString(game.String())
 
-	if len(users) == 0 {
+	if game.IsRegistrationOpen == false {
+		messageBuilder.WriteString("\n\nЗапись на эту игру откроется в ближейшее к игре воскресенье в 22:00")
+	} else if len(users) == 0 {
 		messageBuilder.WriteString("\n\nНа эту игру пока никто не записался")
 	} else {
 		for i, user := range users {
-			messageBuilder.WriteString(fmt.Sprintf("%d. @%s\n", i + 1, user.Tag))
+			messageBuilder.WriteString(fmt.Sprintf("%d. @%s\n", i+1, user.Tag))
 		}
 	}
 
@@ -99,7 +102,7 @@ func ShowGame(bot *tgapi.BotAPI, update tgapi.Update, repo *database.Repository,
 	if utils.IsIdIn(update.FromChat().ID, &users) {
 		message.ReplyMarkup = keyboards.UnsignKeyboard(game.ID)
 	} else {
-		message.ReplyMarkup = keyboards.SignKeyboard(game.ID)
+		message.ReplyMarkup = keyboards.SignKeyboard(game)
 	}
 	if _, err := bot.Send(message); err != nil {
 		log.Panic(err)
@@ -124,7 +127,7 @@ func WillCome(bot *tgapi.BotAPI, update tgapi.Update, repo *database.Repository,
 
 	var messageText string
 	if isOk := services.SignFromReserve(repo, userId, uint(gameId)); isOk {
-		messageText = fmt.Sprintf("Теперь вы в основе!")	
+		messageText = fmt.Sprintf("Теперь вы в основе!")
 	} else {
 		messageText = fmt.Sprintf("Что-то пошло не так!")
 	}
@@ -141,15 +144,15 @@ func WillCome(bot *tgapi.BotAPI, update tgapi.Update, repo *database.Repository,
 func WontCome(bot *tgapi.BotAPI, update tgapi.Update, repo *database.Repository, args []string) {
 	userId := update.FromChat().ID
 	DeleteMessage(bot, userId, update.CallbackQuery.Message.MessageID)
-	
+
 	gameId, err := strconv.Atoi(args[0])
 	if err != nil {
 		log.Panic(err)
-	}	
-	if err := repo.DeleteRegistration(userId, uint(gameId)); err != nil {
-		return 
 	}
-	
+	if err := repo.DeleteRegistration(userId, uint(gameId)); err != nil {
+		return
+	}
+
 	notifiers.NotifyHeadOfQueue(bot, repo, uint(gameId))
 	message := tgapi.NewMessage(userId, "Вы выписались из игры.")
 	message.ReplyMarkup = keyboards.GoToMainMenuKeyboard()

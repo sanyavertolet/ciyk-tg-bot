@@ -2,18 +2,21 @@ package bot
 
 import (
 	callbacks "camus/sanyavertolet/bot/pkg/bot/callbacks"
+	"camus/sanyavertolet/bot/pkg/bot/notifiers"
 	services "camus/sanyavertolet/bot/pkg/bot/services"
 	"camus/sanyavertolet/bot/pkg/bot/utils"
+	cron "camus/sanyavertolet/bot/pkg/cron"
 	database "camus/sanyavertolet/bot/pkg/database/repository"
 	tgapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	cronLib "github.com/robfig/cron"
 	"log"
 	"strings"
 )
 
-func InitBot(token string, repo *database.Repository) {
+func InitBot(repo *database.Repository, cronService *cronLib.Cron, token string) error {
 	bot, err := tgapi.NewBotAPI(token)
 	if err != nil {
-		log.Panic(err)
+		return err
 	}
 	bot.Debug = true
 	log.Printf("Authorized on account %s", bot.Self.UserName)
@@ -22,6 +25,10 @@ func InitBot(token string, repo *database.Repository) {
 	u.Timeout = 60
 
 	updates := bot.GetUpdatesChan(u)
+
+	if err := ScheduleRegistrationOpening(bot, repo, cronService); err != nil {
+		return err
+	}
 
 	for update := range updates {
 		if update.CallbackQuery != nil {
@@ -34,6 +41,8 @@ func InitBot(token string, repo *database.Repository) {
 			}
 		}
 	}
+
+	return nil
 }
 
 func ProcessCommands(bot *tgapi.BotAPI, update tgapi.Update, repo *database.Repository) {
@@ -73,4 +82,14 @@ func ProcessCallbacks(bot *tgapi.BotAPI, update tgapi.Update, repo *database.Rep
 	case "wontCome":
 		callbacks.WontCome(bot, update, repo, data[1:])
 	}
+}
+
+func ScheduleRegistrationOpening(bot *tgapi.BotAPI, repo *database.Repository, cronService *cronLib.Cron) error {
+	return cronService.AddFunc(cron.EverySundayEveningCronSpec, func() {
+		games, err := repo.OpenRegistrationForGames()
+		if err != nil {
+			log.Printf("Could not open registration for games: %v", err)
+		}
+		notifiers.NotifyEverybodyGamesAdded(bot, repo, games)
+	})
 }

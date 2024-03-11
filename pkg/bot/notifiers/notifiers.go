@@ -9,6 +9,29 @@ import (
 	"log"
 )
 
+func Notify(bot *tgbotapi.BotAPI, messageText string, id int64, keyboard *tgbotapi.InlineKeyboardMarkup) {
+	message := tgbotapi.NewMessage(id, messageText)
+	message.ReplyMarkup = keyboard
+
+	if _, err := bot.Send(message); err != nil {
+		log.Print("Cound not notify user")
+	}
+}
+
+func NotifyUsers(bot *tgbotapi.BotAPI, userIds []int64, message string, keyboard *tgbotapi.InlineKeyboardMarkup) {
+	for i := 0; i < len(userIds); i++ {
+		Notify(bot, message, userIds[i], keyboard)
+	}
+}
+
+func NotifyEverybody(bot *tgbotapi.BotAPI, repo *database.Repository, message string, keyboard *tgbotapi.InlineKeyboardMarkup) {
+	ids, err := repo.FindAllUserIds()
+	if err != nil {
+		log.Panic(err)
+	}
+	NotifyUsers(bot, ids, message, keyboard)
+}
+
 func NotifyHeadOfQueue(bot *tgbotapi.BotAPI, repo *database.Repository, gameId uint) {
 	user, game, err := repo.FindFirstQueuingUserByGameId(gameId)
 	if err != nil {
@@ -27,28 +50,27 @@ func NotifyGameAdded(bot *tgbotapi.BotAPI, repo *database.Repository, game model
 		game.Place,
 		game.Date)
 
-	keyboard := keyboards.SignKeyboard(game.ID)
+	keyboard := keyboards.SignKeyboard(game)
 
 	NotifyEverybody(bot, repo, message, keyboard)
 }
 
-func Notify(bot *tgbotapi.BotAPI, messageText string, id int64, keyboard *tgbotapi.InlineKeyboardMarkup) {
-	message := tgbotapi.NewMessage(id, messageText)
-	message.ReplyMarkup = keyboard
-	
-	if _, err := bot.Send(message); err != nil {
-		log.Print("Cound not notify user")
-	}
-}
-
-func NotifyEverybody(bot *tgbotapi.BotAPI, repo *database.Repository, message string, keyboard *tgbotapi.InlineKeyboardMarkup) {
-	ids, err := repo.FindAllUserIds()
+func NotifyEverybodyGamesAdded(bot *tgbotapi.BotAPI, repo *database.Repository, games []model.Game) {
+	userIds, err := repo.FindAllUserIds()
 	if err != nil {
-		log.Panic("Could not fetch user ids")
-		return
+		log.Panic(err)
 	}
 
-	for i := 0; i < len(ids); i++ {
-		Notify(bot, message, ids[i], keyboard)
+	for _, game := range games {
+		message := fmt.Sprintf(
+			"Открыта запись на игру!\n\n * Что: %s\n * Где?: %s\n * Когда: %s",
+			game.Name,
+			game.Place,
+			game.Date,
+		)
+
+		keyboard := keyboards.SignKeyboard(game)
+
+		NotifyUsers(bot, userIds, message, keyboard)
 	}
 }

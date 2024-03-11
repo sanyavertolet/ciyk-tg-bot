@@ -9,7 +9,7 @@ import (
 	"strconv"
 )
 
-type GamesGetter func()([]model.Game, error)
+type GamesGetter func() ([]model.Game, error)
 
 func ShowGames(
 	bot *tgapi.BotAPI,
@@ -17,7 +17,7 @@ func ShowGames(
 	gamesGetter GamesGetter,
 	text string,
 	args []string,
-	) {
+) {
 	DeleteMessage(bot, update.FromChat().ID, update.CallbackQuery.Message.MessageID)
 
 	page, err := strconv.Atoi(args[1])

@@ -14,7 +14,7 @@ func InitDatabase(databaseFileName string) (*database.Repository, error) {
 		return nil, err
 	}
 
-	err = db.AutoMigrate(&User{}, &Game{}, &Registration{})
+	err = db.AutoMigrate(&User{}, &Game{}, &Registration{}, &Checkpoint{})
 	if err != nil {
 		return nil, err
 	}

@@ -27,15 +27,15 @@ func AddGame(repo *database.Repository, message string) *model.Game {
 		log.Panic("Not enough arguments")
 		return nil
 	}
-	
+
 	maxPlayers := 9
 	if len(args) == 4 {
 		atoi, err := strconv.Atoi(args[3])
 		if err != nil {
 			log.Panic("Wrong maxPlayers format")
-			return nil 
+			return nil
 		}
-		maxPlayers = atoi 
+		maxPlayers = atoi
 	}
 
 	name := args[0]
@@ -68,7 +68,7 @@ func sign(repo *database.Repository, userId int64, game model.Game) *model.Regis
 		log.Panic(err)
 		return nil
 	}
-	
+
 	registration, err := repo.CreateRegistration(userId, game.ID, counter < int64(game.MaxPlayers))
 	if err != nil {
 		log.Panic(err)
@@ -109,7 +109,7 @@ func SignByGameId(repo *database.Repository, userId int64, gameId uint) *model.R
 		log.Panic(err)
 		return nil
 	}
-	
+
 	return sign(repo, userId, game)
 }
 
@@ -125,7 +125,6 @@ func UnsignByGameId(repo *database.Repository, userId int64, gameId uint) {
 		return
 	}
 
-	
 	if err := repo.DeleteRegistration(userId, game.ID); err != nil {
 		log.Panic(err)
 		return
@@ -135,4 +134,4 @@ func UnsignByGameId(repo *database.Repository, userId int64, gameId uint) {
 func SignFromReserve(repo *database.Repository, userId int64, gameId uint) bool {
 	err := repo.ChangeIsQueuingByUserIdAndGameId(userId, gameId, true)
 	return err == nil
-} 
+}
