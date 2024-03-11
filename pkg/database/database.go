@@ -1,7 +1,7 @@
 package database
 
 import (
-	. "camus/sanyavertolet/bot/pkg/database/model"
+	model "camus/sanyavertolet/bot/pkg/database/model"
 	database "camus/sanyavertolet/bot/pkg/database/repository"
 
 	"gorm.io/driver/sqlite"
@@ -14,7 +14,7 @@ func InitDatabase(databaseFileName string) (*database.Repository, error) {
 		return nil, err
 	}
 
-	err = db.AutoMigrate(&User{}, &Game{}, &Registration{}, &Checkpoint{})
+	err = db.AutoMigrate(&model.User{}, &model.Game{}, &model.Registration{}, &model.Checkpoint{})
 	if err != nil {
 		return nil, err
 	}

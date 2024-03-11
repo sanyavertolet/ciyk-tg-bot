@@ -88,7 +88,7 @@ func ShowGame(bot *tgapi.BotAPI, update tgapi.Update, repo *database.Repository,
 
 	messageBuilder.WriteString(game.String())
 
-	if game.IsRegistrationOpen == false {
+	if !game.IsRegistrationOpen {
 		messageBuilder.WriteString("\n\nЗапись на эту игру откроется в ближейшее к игре воскресенье в 22:00")
 	} else if len(users) == 0 {
 		messageBuilder.WriteString("\n\nНа эту игру пока никто не записался")
@@ -127,9 +127,9 @@ func WillCome(bot *tgapi.BotAPI, update tgapi.Update, repo *database.Repository,
 
 	var messageText string
 	if isOk := services.SignFromReserve(repo, userId, uint(gameId)); isOk {
-		messageText = fmt.Sprintf("Теперь вы в основе!")
+		messageText = "Теперь вы в основе!"
 	} else {
-		messageText = fmt.Sprintf("Что-то пошло не так!")
+		messageText = "Что-то пошло не так!"
 	}
 
 	message := tgapi.NewMessage(userId, messageText)

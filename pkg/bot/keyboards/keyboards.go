@@ -19,7 +19,7 @@ func WillComeKeyboard(gameId uint) *tgbotapi.InlineKeyboardMarkup {
 
 func SignKeyboard(game model.Game) *tgbotapi.InlineKeyboardMarkup {
 	var rows [][]tgbotapi.InlineKeyboardButton
-	if game.IsRegistrationOpen == true {
+	if game.IsRegistrationOpen {
 		sign := tgbotapi.NewInlineKeyboardButtonData("Записаться", fmt.Sprintf("sign %d", game.ID))
 		rows = append(rows, tgbotapi.NewInlineKeyboardRow(sign))
 	}
