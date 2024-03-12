@@ -29,6 +29,9 @@ func InitBot(repo *database.Repository, cronService *cronLib.Cron, token string)
 	if err := ScheduleRegistrationOpening(bot, repo, cronService); err != nil {
 		return err
 	}
+	if err := ScheduleGameReminders(bot, repo, cronService); err != nil {
+		return err
+	}
 
 	for update := range updates {
 		if update.CallbackQuery != nil {
@@ -91,5 +94,15 @@ func ScheduleRegistrationOpening(bot *tgapi.BotAPI, repo *database.Repository, c
 			log.Printf("Could not open registration for games: %v", err)
 		}
 		notifiers.NotifyEverybodyGamesAdded(bot, repo, games)
+	})
+}
+
+func ScheduleGameReminders(bot *tgapi.BotAPI, repo *database.Repository, cronService *cronLib.Cron) error {
+	return cronService.AddFunc(cron.EveryMiddayCronSpec, func() {
+		userIdGameMap, err := repo.FindTomorrowUserIdsAssosiatedWithGames()
+		if err != nil {
+			log.Printf("Could not remind user about game: %v", err)
+		}
+		notifiers.NotifyUsersForTomorrowGames(bot, userIdGameMap)
 	})
 }

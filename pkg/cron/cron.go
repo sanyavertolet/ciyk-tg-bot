@@ -10,6 +10,8 @@ import (
 const (
 	EverySundayMidnightCronSpec = "0 0 0 * * SUN"
 	EverySundayEveningCronSpec  = "0 0 22 * * SUN"
+
+	EveryMiddayCronSpec = "0 0 12 * * *"
 )
 
 func InitCron(sheets *sheets.Sheets, repo *database.Repository) (*cron.Cron, error) {

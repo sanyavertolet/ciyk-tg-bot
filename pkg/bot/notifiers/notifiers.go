@@ -74,3 +74,11 @@ func NotifyEverybodyGamesAdded(bot *tgbotapi.BotAPI, repo *database.Repository, 
 		NotifyUsers(bot, userIds, message, keyboard)
 	}
 }
+
+func NotifyUsersForTomorrowGames(bot *tgbotapi.BotAPI, userIdGameMap map[int64]model.Game) {
+	for userId, game := range userIdGameMap {
+		gameTime := game.Date.Format("15:04")
+		messageText := fmt.Sprintf("Завтра в %s в %s %s!", gameTime, game.Place, game.Name)
+		Notify(bot, messageText, userId, keyboards.GoToMainMenuKeyboard())
+	}
+}
