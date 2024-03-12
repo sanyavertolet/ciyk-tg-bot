@@ -2,7 +2,7 @@ package database
 
 import (
 	model "camus/sanyavertolet/bot/pkg/database/model"
-
+	"time"
 	"fmt"
 	"gorm.io/gorm"
 )
@@ -82,4 +82,38 @@ func (repo *Repository) CountUsersForGame(gameId uint) (int64, error) {
 		Where(model.Registration{GameId: gameId, IsQueuing: false}).
 		Count(&counter).Error
 	return counter, err
+}
+
+func (repo *Repository) FindTomorrowUserIdsAssosiatedWithGames() (map[int64]model.Game, error) {
+	startOfNextDay := time.Now().AddDate(0, 0, 1)
+	startOfNextDayLocal := time.Date(
+		startOfNextDay.Year(),
+		startOfNextDay.Month(),
+		startOfNextDay.Day(),
+		0,
+		0,
+		0,
+		0,
+		time.Local,
+	)
+	endOfNextDayLocal := startOfNextDayLocal.AddDate(0, 0, 1)
+
+	var registrations []model.Registration
+	err := repo.DB.
+		Model(&model.Registration{}).
+		Preload("Game").
+		Joins("JOIN games ON games.id = registrations.game_id").
+		Where("games.date >= ? AND games.date < ?", startOfNextDayLocal, endOfNextDayLocal).
+		Where("is_queuing = ?", false).
+		Find(&registrations).Error
+	if err != nil {
+		return nil, err
+	}
+
+	result := make(map[int64]model.Game)
+	for _, registration := range registrations {
+		result[registration.UserId] = registration.Game
+	}
+
+	return result, nil
 }
