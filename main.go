@@ -6,10 +6,12 @@ import (
 	"camus/sanyavertolet/bot/pkg/cron"
 	"camus/sanyavertolet/bot/pkg/database"
 	"camus/sanyavertolet/bot/pkg/sheets"
+	"github.com/carlmjohnson/versioninfo"
 	"log"
 )
 
 func main() {
+	log.Printf("Version: %s", versioninfo.Short())
 	config, err := configuration.LoadConfig("config.json")
 	if err != nil {
 		log.Fatalf("Config loading error: %v", err)
