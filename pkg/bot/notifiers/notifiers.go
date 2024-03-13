@@ -38,7 +38,7 @@ func NotifyHeadOfQueue(bot *tgbotapi.BotAPI, repo *database.Repository, gameId u
 		log.Print(err)
 		return
 	}
-	message := fmt.Sprintf("Вы попадаете в основу!\n\n %s", game.String())
+	message := fmt.Sprintf("Вы попадаете в основу!\n\n%s", game.String())
 	keyboard := keyboards.WillComeKeyboard(game.ID)
 	Notify(bot, message, user.ID, keyboard)
 }

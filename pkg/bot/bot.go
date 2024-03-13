@@ -2,6 +2,7 @@ package bot
 
 import (
 	callbacks "camus/sanyavertolet/bot/pkg/bot/callbacks"
+	"camus/sanyavertolet/bot/pkg/bot/inlinequeries"
 	"camus/sanyavertolet/bot/pkg/bot/notifiers"
 	services "camus/sanyavertolet/bot/pkg/bot/services"
 	"camus/sanyavertolet/bot/pkg/bot/utils"
@@ -34,6 +35,9 @@ func InitBot(repo *database.Repository, cronService *cronLib.Cron, token string)
 	}
 
 	for update := range updates {
+		if update.InlineQuery != nil {
+			go ProcessInlineQuery(bot, update, repo)
+		}
 		if update.CallbackQuery != nil {
 			go ProcessCallbacks(bot, update, repo)
 		}
@@ -84,6 +88,18 @@ func ProcessCallbacks(bot *tgapi.BotAPI, update tgapi.Update, repo *database.Rep
 		callbacks.WillCome(bot, update, repo, data[1:])
 	case "wontCome":
 		callbacks.WontCome(bot, update, repo, data[1:])
+	}
+}
+
+func ProcessInlineQuery(bot *tgapi.BotAPI, update tgapi.Update, repo *database.Repository) {
+	if update.InlineQuery.Query == "" {
+		inlinequeries.Hints(bot, update)
+		return
+	}
+	data := strings.Fields(update.InlineQuery.Query)
+	switch {
+	case data[0] == "no":
+		inlinequeries.AboutGame(bot, update, repo)
 	}
 }
 

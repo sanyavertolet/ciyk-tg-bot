@@ -90,3 +90,17 @@ func (repo *Repository) OpenRegistrationForGames() ([]model.Game, error) {
 		Find(&games).Error
 	return games, err
 }
+
+func (repo *Repository) FindNextWeekGames() ([]model.Game, error) {
+	var games []model.Game
+	now := time.Now()
+	err := repo.DB.
+		Model(&model.Game{}).
+		Preload("Users").
+		Where("date >= ? AND date <= ?", now, now.AddDate(0, 0, 7)).
+		Where("is_registration_open", true).
+		Order("date ASC").
+		Find(&games).Error
+
+	return games, err
+}
