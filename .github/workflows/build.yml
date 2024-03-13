@@ -1,0 +1,29 @@
+name: Build and Upload
+
+on:
+    push:
+        branches:
+            - master
+
+jobs:
+    linters:
+        name: "Build and Upload"
+        runs-on: ubuntu-latest
+        steps:
+            - name: Check out code into the Go module directory
+              uses: actions/checkout@v2
+
+            - uses: actions/setup-go@v2
+              with:
+                  go-version: 1.22.0
+
+            - name: Set CGO_ENABLED
+              run: go env -w CGO_ENABLED=1
+
+            - name: Build
+              run: go build
+
+            - uses: actions/upload-artifact@v4
+              with:
+                  name: ciykbot
+                  path: ./bot
