@@ -13,8 +13,7 @@ import (
 )
 
 func AddUser(bot *tgbotapi.BotAPI, repo *database.Repository, id int64, userName string) {
-	_, err := repo.CreateUser(id, userName)
-	if err != nil {
+	if _, err := repo.CreateUser(id, userName); err != nil {
 		log.Panic(err)
 		return
 	}
@@ -120,11 +119,6 @@ func UnsignByGameId(repo *database.Repository, userId int64, gameId uint) {
 		return
 	}
 
-	if err != nil {
-		log.Panic(err)
-		return
-	}
-
 	if err := repo.DeleteRegistration(userId, game.ID); err != nil {
 		log.Panic(err)
 		return
@@ -132,6 +126,5 @@ func UnsignByGameId(repo *database.Repository, userId int64, gameId uint) {
 }
 
 func SignFromReserve(repo *database.Repository, userId int64, gameId uint) bool {
-	err := repo.ChangeIsQueuingByUserIdAndGameId(userId, gameId, true)
-	return err == nil
+	return repo.ChangeIsQueuingByUserIdAndGameId(userId, gameId, true) == nil
 }

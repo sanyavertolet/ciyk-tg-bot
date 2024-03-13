@@ -28,7 +28,7 @@ type Sheets struct {
 func InitSheets(keyFileName string, spreadsheetID string) (*Sheets, error) {
 	creds, err := os.ReadFile(keyFileName)
 	if err != nil {
-		log.Printf("Unable to read credentials file: %v", err)
+		log.Fatalf("Unable to read credentials file: %v", err)
 		return nil, err
 	}
 
@@ -48,10 +48,12 @@ func InitSheets(keyFileName string, spreadsheetID string) (*Sheets, error) {
 }
 
 func (sh *Sheets) SyncGames(repo *database.Repository) {
+	log.Print("Synchronizing games")
 	checkpoint, err := repo.GetLastCheckpoint()
 	if err != nil {
 		log.Panic(err)
 	}
+	log.Printf("Last detected checkpoint: %d", checkpoint.Line)
 
 	readRange := fmt.Sprintf(fmtReadRange, checkpoint.Line+1)
 	response, err := sh.Services.Spreadsheets.Values.Get(sh.SpreadsheetID, readRange).Do()
@@ -83,11 +85,18 @@ func (sh *Sheets) SyncGames(repo *database.Repository) {
 		games = append(games, game)
 	}
 
+	if len(response.Values) == 0 {
+		log.Print("All games are already synchronized.")
+		return
+	}
+	log.Printf("Creating %d games", len(games))
 	if err := repo.CreateGames(games); err != nil {
 		log.Panic(err)
 	}
 
-	if _, err := repo.SaveCheckpoint(checkpoint.Line + len(response.Values)); err != nil {
+	savedCheckpoint, err := repo.SaveCheckpoint(checkpoint.Line + len(response.Values))
+	if err != nil {
 		log.Panic(err)
 	}
+	log.Printf("Saved checkpoint %d", savedCheckpoint.Line)
 }

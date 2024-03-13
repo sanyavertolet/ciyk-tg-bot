@@ -7,6 +7,8 @@ import (
 
 func (repo *Repository) SaveCheckpoint(lastProcessedLineNumber int) (model.Checkpoint, error) {
 	checkpoint := model.Checkpoint{Line: lastProcessedLineNumber, CreatedAt: time.Now()}
+	repo.mutex.Lock()
+	defer repo.mutex.Unlock()
 	err := repo.DB.Create(&checkpoint).Error
 	return checkpoint, err
 }

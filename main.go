@@ -25,6 +25,8 @@ func main() {
 		log.Fatalf("Google Sheets initialization error: %v", err)
 	}
 
+	sheetsServices.SyncGames(repo)
+
 	cronService, err := cron.InitCron(sheetsServices, repo)
 	if err != nil {
 		log.Fatalf("Cron initialization error: %v", err)

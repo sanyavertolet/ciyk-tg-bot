@@ -41,7 +41,8 @@ func UnsignCallback(
 	bot *tgapi.BotAPI,
 	update tgapi.Update,
 	repo *database.Repository,
-	args []string) {
+	args []string,
+) {
 	DeleteMessage(bot, update.FromChat().ID, update.CallbackQuery.Message.MessageID)
 
 	userId := update.FromChat().ID
@@ -63,7 +64,6 @@ func UnsignCallback(
 
 func ShowMenuCallback(bot *tgapi.BotAPI, update tgapi.Update) {
 	DeleteMessage(bot, update.FromChat().ID, update.CallbackQuery.Message.MessageID)
-
 	utils.ShowMenu(bot, update.CallbackQuery.From.ID)
 }
 

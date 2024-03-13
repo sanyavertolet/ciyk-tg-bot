@@ -2,13 +2,15 @@ package database
 
 import (
 	model "camus/sanyavertolet/bot/pkg/database/model"
-	"time"
 	"fmt"
 	"gorm.io/gorm"
+	"time"
 )
 
 func (repo *Repository) CreateRegistration(userId int64, gameId uint, isQueuing bool) (model.Registration, error) {
 	registration := model.Registration{UserId: userId, GameId: gameId, IsQueuing: isQueuing}
+	repo.mutex.Lock()
+	defer repo.mutex.Unlock()
 	if err := repo.DB.FirstOrCreate(&registration).Error; err != nil {
 		return registration, err
 	}
@@ -17,6 +19,8 @@ func (repo *Repository) CreateRegistration(userId int64, gameId uint, isQueuing 
 }
 
 func (repo *Repository) DeleteRegistration(userId int64, gameId uint) error {
+	repo.mutex.Lock()
+	defer repo.mutex.Unlock()
 	err := repo.DB.
 		Where("user_id = ? AND game_id = ?", userId, gameId).
 		Delete(&model.Registration{}).Error
@@ -65,6 +69,8 @@ func (repo *Repository) FindUsersByGameIdOrderedByRegistrationTime(gameId uint) 
 }
 
 func (repo *Repository) ChangeIsQueuingByUserIdAndGameId(userId int64, gameId uint, isQueuing bool) error {
+	repo.mutex.Lock()
+	defer repo.mutex.Unlock()
 	if err := repo.DB.
 		Model(&model.Registration{}).
 		Where(&model.Registration{GameId: gameId, UserId: userId}).
