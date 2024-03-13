@@ -9,8 +9,7 @@ import (
 
 func Hints(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 	var articles []interface{}
-	var article tgbotapi.InlineQueryResultArticle
-	article = tgbotapi.NewInlineQueryResultArticleMarkdown(
+	article := tgbotapi.NewInlineQueryResultArticleMarkdown(
 		update.InlineQuery.ID,
 		"no",
 		"Чтобы показать информацию об игре, введите \"@ciykbot no\" и выберете подходящую игру.",
