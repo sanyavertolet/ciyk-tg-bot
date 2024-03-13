@@ -20,14 +20,10 @@ func LoadConfig(filePath string) (*Config, error) {
 		return &config, err
 	}
 
-	defer func(configFile *os.File) {
-		_ = configFile.Close()
-	}(configFile)
+	defer func(configFile *os.File) { _ = configFile.Close() }(configFile)
 
 	jsonParser := json.NewDecoder(configFile)
-	err = jsonParser.Decode(&config)
-
-	if err != nil {
+	if err := jsonParser.Decode(&config); err != nil {
 		return &config, err
 	}
 

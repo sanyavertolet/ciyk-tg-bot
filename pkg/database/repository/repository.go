@@ -1,7 +1,11 @@
 package database
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+	"sync"
+)
 
 type Repository struct {
-	DB *gorm.DB
+	DB    *gorm.DB
+	mutex sync.Mutex
 }

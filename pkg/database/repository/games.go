@@ -8,6 +8,8 @@ import (
 
 func (repo *Repository) CreateGame(name string, place string, date time.Time, maxPlayers int) (model.Game, error) {
 	game := model.Game{Name: name, Date: date, MaxPlayers: maxPlayers, Place: place, IsRegistrationOpen: true}
+	repo.mutex.Lock()
+	defer repo.mutex.Unlock()
 	err := repo.DB.Create(&game).Error
 	return game, err
 }
@@ -16,6 +18,8 @@ func (repo *Repository) CreateGames(games []model.Game) error {
 	if len(games) == 0 {
 		return nil
 	}
+	repo.mutex.Lock()
+	defer repo.mutex.Unlock()
 	return repo.DB.Create(games).Error
 }
 
@@ -81,6 +85,8 @@ func (repo *Repository) FindGameByNameAndDate(name string, date time.Time) (mode
 func (repo *Repository) OpenRegistrationForGames() ([]model.Game, error) {
 	var games []model.Game
 	now := time.Now()
+	repo.mutex.Lock()
+	defer repo.mutex.Unlock()
 	err := repo.DB.
 		Model(&model.Game{}).
 		Where(&model.Game{IsRegistrationOpen: false}).

@@ -6,7 +6,7 @@ import (
 	"camus/sanyavertolet/bot/pkg/bot/notifiers"
 	services "camus/sanyavertolet/bot/pkg/bot/services"
 	"camus/sanyavertolet/bot/pkg/bot/utils"
-	cron "camus/sanyavertolet/bot/pkg/cron"
+	"camus/sanyavertolet/bot/pkg/cron"
 	database "camus/sanyavertolet/bot/pkg/database/repository"
 	tgapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	cronLib "github.com/robfig/cron"
@@ -110,6 +110,7 @@ func ScheduleRegistrationOpening(bot *tgapi.BotAPI, repo *database.Repository, c
 			log.Printf("Could not open registration for games: %v", err)
 		}
 		notifiers.NotifyEverybodyGamesAdded(bot, repo, games)
+		log.Printf("Opened %d games", len(games))
 	})
 }
 
@@ -120,5 +121,6 @@ func ScheduleGameReminders(bot *tgapi.BotAPI, repo *database.Repository, cronSer
 			log.Printf("Could not remind user about game: %v", err)
 		}
 		notifiers.NotifyUsersForTomorrowGames(bot, userIdGameMap)
+		log.Printf("Notified %d users", len(userIdGameMap))
 	})
 }
