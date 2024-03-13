@@ -20,7 +20,7 @@ func Hints(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 	inlineConf := tgbotapi.InlineConfig{
 		InlineQueryID: update.InlineQuery.ID,
 		IsPersonal:    true,
-		CacheTime:     0,
+		CacheTime:     1,
 		Results:       articles,
 	}
 
@@ -32,7 +32,7 @@ func Hints(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 func AboutGame(bot *tgbotapi.BotAPI, update tgbotapi.Update, repo *database.Repository) {
 	games, err := repo.FindNextWeekGames()
 	if err != nil {
-		return
+		log.Printf("Could not find next week games: %v", err)
 	}
 
 	var articles []interface{}
@@ -49,11 +49,11 @@ func AboutGame(bot *tgbotapi.BotAPI, update tgbotapi.Update, repo *database.Repo
 	inlineConf := tgbotapi.InlineConfig{
 		InlineQueryID: update.InlineQuery.ID,
 		IsPersonal:    true,
-		CacheTime:     0,
+		CacheTime:     1,
 		Results:       articles,
 	}
 
 	if _, err := bot.Request(inlineConf); err != nil {
-		log.Panic(err)
+		log.Print(err)
 	}
 }
