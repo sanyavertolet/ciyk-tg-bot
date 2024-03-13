@@ -12,8 +12,8 @@ import (
 	"time"
 )
 
-func AddUser(bot *tgbotapi.BotAPI, repo *database.Repository, id int64, userName string) {
-	if _, err := repo.CreateUser(id, userName); err != nil {
+func AddUser(bot *tgbotapi.BotAPI, repo *database.Repository, id int64, userTag string, userName string) {
+	if _, err := repo.CreateUser(id, userTag, userName); err != nil {
 		log.Panic(err)
 		return
 	}

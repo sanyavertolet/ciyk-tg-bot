@@ -55,13 +55,13 @@ func InitBot(repo *database.Repository, cronService *cronLib.Cron, token string)
 func ProcessCommands(bot *tgapi.BotAPI, update tgapi.Update, repo *database.Repository) {
 	switch update.Message.Command() {
 	case "start":
-		services.AddUser(bot, repo, update.Message.From.ID, update.Message.From.UserName)
+		services.AddUser(bot, repo, update.FromChat().ID, update.FromChat().UserName, update.FromChat().FirstName)
 	case "add":
 		services.AddGameAndNotifyEveryone(bot, repo, update.Message.CommandArguments())
 	case "sign":
-		services.SignViaCommand(repo, update.Message.CommandArguments(), update.Message.From.ID)
+		services.SignViaCommand(repo, update.Message.CommandArguments(), update.FromChat().ID)
 	case "menu":
-		utils.ShowMenu(bot, update.Message.From.ID)
+		utils.ShowMenu(bot, update.FromChat().ID)
 	}
 }
 

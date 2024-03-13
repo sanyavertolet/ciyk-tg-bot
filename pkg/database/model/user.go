@@ -1,6 +1,7 @@
 package database
 
 type User struct {
-	ID  int64
-	Tag string
+	ID   int64
+	Tag  string
+	Name string
 }

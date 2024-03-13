@@ -38,7 +38,12 @@ func (game *Game) StringWithUsers() string {
 			if i == game.MaxPlayers {
 				stringBuilder.WriteString("\nРезерв:\n")
 			}
-			stringBuilder.WriteString(fmt.Sprintf("%d. @%s\n", i+1, user.Tag))
+			userTag := fmt.Sprintf("@%s", user.Tag)
+			if user.Tag == "" {
+				// fixMe: tag users without telegram tag
+				userTag = user.Name
+			}
+			stringBuilder.WriteString(fmt.Sprintf("%d. %s\n", i+1, userTag))
 		}
 	}
 

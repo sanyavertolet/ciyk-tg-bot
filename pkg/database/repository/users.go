@@ -2,8 +2,8 @@ package database
 
 import model "camus/sanyavertolet/bot/pkg/database/model"
 
-func (repo *Repository) CreateUser(id int64, telegramTag string) (model.User, error) {
-	user := model.User{ID: id, Tag: telegramTag}
+func (repo *Repository) CreateUser(id int64, telegramTag string, name string) (model.User, error) {
+	user := model.User{ID: id, Tag: telegramTag, Name: name}
 	repo.mutex.Lock()
 	defer repo.mutex.Unlock()
 	err := repo.DB.Save(&user).Error
