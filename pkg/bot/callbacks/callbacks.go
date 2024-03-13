@@ -16,7 +16,8 @@ func SignCallback(
 	bot *tgapi.BotAPI,
 	update tgapi.Update,
 	repo *database.Repository,
-	args []string) {
+	args []string,
+) {
 	DeleteMessage(bot, update.FromChat().ID, update.CallbackQuery.Message.MessageID)
 
 	userId := update.CallbackQuery.From.ID

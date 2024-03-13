@@ -64,13 +64,14 @@ func AddGameAndNotifyEveryone(bot *tgbotapi.BotAPI, repo *database.Repository, m
 func sign(repo *database.Repository, userId int64, game model.Game) *model.Registration {
 	counter, err := repo.CountUsersForGame(game.ID)
 	if err != nil {
-		log.Panic(err)
+		log.Printf("Couldn't count users for game %s: %v", game.Name, err)
 		return nil
 	}
 
-	registration, err := repo.CreateRegistration(userId, game.ID, counter < int64(game.MaxPlayers))
+	log.Print("Creating registration")
+	registration, err := repo.CreateRegistration(userId, game.ID, counter >= int64(game.MaxPlayers))
 	if err != nil {
-		log.Panic(err)
+		log.Panicf("Couldn't create registration for game %s: %v", game.Name, err)
 		return nil
 	}
 
@@ -113,13 +114,7 @@ func SignByGameId(repo *database.Repository, userId int64, gameId uint) *model.R
 }
 
 func UnsignByGameId(repo *database.Repository, userId int64, gameId uint) {
-	game, err := repo.FindGameById(gameId)
-	if err != nil {
-		log.Panic(err)
-		return
-	}
-
-	if err := repo.DeleteRegistration(userId, game.ID); err != nil {
+	if err := repo.DeleteRegistration(userId, gameId); err != nil {
 		log.Panic(err)
 		return
 	}
