@@ -11,10 +11,9 @@ func (repo *Repository) CreateRegistration(userId int64, gameId uint, isQueuing 
 	registration := model.Registration{UserId: userId, GameId: gameId, IsQueuing: isQueuing}
 	repo.mutex.Lock()
 	defer repo.mutex.Unlock()
-	if err := repo.DB.FirstOrCreate(&registration).Error; err != nil {
-		return registration, err
-	}
-	err := repo.DB.Preload("Game").First(&registration, registration.ID).Error
+	err := repo.DB.
+		Preload("Game").
+		FirstOrCreate(&registration, registration).Error
 	return registration, err
 }
 
@@ -48,12 +47,12 @@ func (repo *Repository) FindFirstQueuingUserByGameId(gameId uint) (model.User, m
 				Where(&model.Registration{GameId: gameId, IsQueuing: true}).
 				Order("created_at ASC").
 				First(&registration).Error; err != nil {
-				return err
+				return fmt.Errorf("no queuing user found under the specified conditions")
 			}
 			user = registration.User
 			return nil
 		}
-		return fmt.Errorf("no queuing user found under the specified conditions")
+		return fmt.Errorf("there is no space left in queue")
 	})
 	return user, game, err
 }
