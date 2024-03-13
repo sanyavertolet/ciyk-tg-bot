@@ -10,7 +10,6 @@ import (
 	tgapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"log"
 	"strconv"
-	"strings"
 )
 
 func SignCallback(
@@ -27,6 +26,7 @@ func SignCallback(
 	}
 
 	registration := services.SignByGameId(repo, userId, uint(gameId))
+
 	messageText := fmt.Sprintf("Вы успешно зарегистрировались на игру!\n\n%s", registration.Game.String())
 	message := tgapi.NewMessage(userId, messageText)
 	message.ReplyMarkup = keyboards.GoToMainMenuKeyboard()
@@ -84,21 +84,9 @@ func ShowGame(bot *tgapi.BotAPI, update tgapi.Update, repo *database.Repository,
 		log.Panic(err)
 	}
 
-	var messageBuilder strings.Builder
+	game.Users = users
 
-	messageBuilder.WriteString(game.String())
-
-	if !game.IsRegistrationOpen {
-		messageBuilder.WriteString("\n\nЗапись на эту игру откроется в ближейшее к игре воскресенье в 22:00")
-	} else if len(users) == 0 {
-		messageBuilder.WriteString("\n\nНа эту игру пока никто не записался")
-	} else {
-		for i, user := range users {
-			messageBuilder.WriteString(fmt.Sprintf("%d. @%s\n", i+1, user.Tag))
-		}
-	}
-
-	message := tgapi.NewMessage(update.FromChat().ID, messageBuilder.String())
+	message := tgapi.NewMessage(update.FromChat().ID, game.StringWithUsers())
 	if utils.IsIdIn(update.FromChat().ID, &users) {
 		message.ReplyMarkup = keyboards.UnsignKeyboard(game.ID)
 	} else {

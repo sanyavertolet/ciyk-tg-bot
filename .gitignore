@@ -1,4 +1,5 @@
 .fleet
 .DS_Store
 *.db
+*.db-journal
 *.json
