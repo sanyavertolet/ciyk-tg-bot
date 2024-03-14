@@ -75,20 +75,13 @@ func ShowGame(bot *tgapi.BotAPI, update tgapi.Update, repo *database.Repository,
 		log.Panic(err)
 	}
 
-	game, err := repo.FindGameById(uint(gameId))
+	game, err := repo.FindGameByIdPreloadingRegisteredUsers(uint(gameId))
 	if err != nil {
 		log.Panic(err)
 	}
-
-	users, err := repo.FindUsersByGameIdOrderedByRegistrationTime(game.ID)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	game.Users = users
 
 	message := tgapi.NewMessage(update.FromChat().ID, game.StringWithUsers())
-	if utils.IsIdIn(update.FromChat().ID, &users) {
+	if utils.IsIdIn(update.FromChat().ID, game.Registrations) {
 		message.ReplyMarkup = keyboards.UnsignKeyboard(game.ID)
 	} else {
 		message.ReplyMarkup = keyboards.SignKeyboard(game)
