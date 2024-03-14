@@ -48,7 +48,7 @@ func (repo *Repository) FindFutureGamesByUserId(userId int64) ([]model.Game, err
 	currentTime := time.Now()
 	err := repo.DB.
 		Joins("JOIN registrations ON registrations.game_id = games.id").
-		Where("registrations.user_id = ? AND games.date > ? AND registrations.deleted_at IS NULL", userId, currentTime).
+		Where("registrations.user_id = ? AND games.date > ?", userId, currentTime).
 		Group("games.id").
 		Order("date ASC").
 		Find(&games).Error
@@ -59,7 +59,7 @@ func (repo *Repository) FindPastGamesByUserId(userId int64) ([]model.Game, error
 	var games []model.Game
 	currentTime := time.Now()
 	err := repo.DB.
-		Joins("JOIN registrations ON registrations.game_id = games.id AND registrations.deleted_at IS NULL").
+		Joins("JOIN registrations ON registrations.game_id = games.id").
 		Where("registrations.user_id = ? AND games.date <= ?", userId, currentTime).
 		Group("games.id").
 		Order("date DESC").

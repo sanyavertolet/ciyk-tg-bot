@@ -21,6 +21,7 @@ func (repo *Repository) DeleteRegistration(userId int64, gameId uint) error {
 	repo.mutex.Lock()
 	defer repo.mutex.Unlock()
 	err := repo.DB.
+		Unscoped().
 		Where("user_id = ? AND game_id = ?", userId, gameId).
 		Delete(&model.Registration{}).Error
 	return err
@@ -61,7 +62,6 @@ func (repo *Repository) FindUsersByGameIdOrderedByRegistrationTime(gameId uint) 
 	var users []model.User
 	err := repo.DB.
 		Joins("JOIN registrations ON registrations.user_id = users.id AND registrations.game_id = ?", gameId).
-		Where("registrations.deleted_at IS NULL").
 		Order("registrations.updated_at ASC").
 		Find(&users).Error
 	return users, err
