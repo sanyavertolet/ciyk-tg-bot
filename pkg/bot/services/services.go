@@ -40,7 +40,7 @@ func AddGame(repo *database.Repository, message string) *model.Game {
 	name := args[0]
 	place := args[1]
 
-	date, err := time.Parse("02.01.06", args[2])
+	date, err := time.ParseInLocation("15:04 02.01.06", args[2], time.Local)
 	if err != nil {
 		log.Panic("Could not parse date, format: DD.MM.YY")
 		return nil
@@ -81,14 +81,14 @@ func sign(repo *database.Repository, userId int64, game model.Game) *model.Regis
 func SignViaCommand(repo *database.Repository, message string, userId int64) *model.Registration {
 	args := strings.Fields(message)
 	if len(args) < 2 {
-		log.Panic("Not enough arguments: need game name and date (DD.MM.YY)")
+		log.Panic("Not enough arguments: need game name and date (hh:mm DD.MM.YY)")
 		return nil
 	} else if len(args) > 2 {
-		log.Panic("Too many arguments: need game name and date (DD.MM.YY)")
+		log.Panic("Too many arguments: need game name and date (hh:mm DD.MM.YY)")
 		return nil
 	}
 
-	date, err := time.Parse("02.01.06", args[1])
+	date, err := time.ParseInLocation("15:04 02.01.06", args[1], time.Local)
 	if err != nil {
 		log.Panic("Wrong date format: DD.MM.YY is required")
 		return nil

@@ -91,24 +91,14 @@ func (repo *Repository) CountUsersForGame(gameId uint) (int64, error) {
 
 func (repo *Repository) FindTomorrowUserIdsAssosiatedWithGames() (map[int64]model.Game, error) {
 	startOfNextDay := time.Now().AddDate(0, 0, 1)
-	startOfNextDayLocal := time.Date(
-		startOfNextDay.Year(),
-		startOfNextDay.Month(),
-		startOfNextDay.Day(),
-		0,
-		0,
-		0,
-		0,
-		time.Local,
-	)
-	endOfNextDayLocal := startOfNextDayLocal.AddDate(0, 0, 1)
+	endOfNextDay := startOfNextDay.AddDate(0, 0, 1)
 
 	var registrations []model.Registration
 	err := repo.DB.
 		Model(&model.Registration{}).
 		Preload("Game").
 		Joins("JOIN games ON games.id = registrations.game_id").
-		Where("games.date >= ? AND games.date < ?", startOfNextDayLocal, endOfNextDayLocal).
+		Where("games.date >= ? AND games.date < ?", startOfNextDay, endOfNextDay).
 		Where("is_queuing = ?", false).
 		Find(&registrations).Error
 	if err != nil {

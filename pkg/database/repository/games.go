@@ -3,7 +3,6 @@ package database
 import (
 	model "camus/sanyavertolet/bot/pkg/database/model"
 	"gorm.io/gorm"
-
 	"time"
 )
 
@@ -26,9 +25,8 @@ func (repo *Repository) CreateGames(games []model.Game) error {
 
 func (repo *Repository) FindFutureGames() ([]model.Game, error) {
 	var games []model.Game
-	currentTime := time.Now()
 	err := repo.DB.
-		Where("date > ?", currentTime).
+		Where("date > ?", time.Now()).
 		Order("date ASC").
 		Find(&games).Error
 	return games, err
@@ -36,9 +34,8 @@ func (repo *Repository) FindFutureGames() ([]model.Game, error) {
 
 func (repo *Repository) FindPastGames() ([]model.Game, error) {
 	var games []model.Game
-	currentTime := time.Now()
 	err := repo.DB.
-		Where("date <= ?", currentTime).
+		Where("date <= ?", time.Now()).
 		Order("date DESC").
 		Find(&games).Error
 	return games, err
@@ -46,10 +43,9 @@ func (repo *Repository) FindPastGames() ([]model.Game, error) {
 
 func (repo *Repository) FindFutureGamesByUserId(userId int64) ([]model.Game, error) {
 	var games []model.Game
-	currentTime := time.Now()
 	err := repo.DB.
 		Joins("JOIN registrations ON registrations.game_id = games.id").
-		Where("registrations.user_id = ? AND games.date > ?", userId, currentTime).
+		Where("registrations.user_id = ? AND games.date > ?", userId, time.Now()).
 		Group("games.id").
 		Order("date ASC").
 		Find(&games).Error
@@ -58,10 +54,9 @@ func (repo *Repository) FindFutureGamesByUserId(userId int64) ([]model.Game, err
 
 func (repo *Repository) FindPastGamesByUserId(userId int64) ([]model.Game, error) {
 	var games []model.Game
-	currentTime := time.Now()
 	err := repo.DB.
 		Joins("JOIN registrations ON registrations.game_id = games.id").
-		Where("registrations.user_id = ? AND games.date <= ?", userId, currentTime).
+		Where("registrations.user_id = ? AND games.date <= ?", userId, time.Now()).
 		Group("games.id").
 		Order("date DESC").
 		Find(&games).Error
