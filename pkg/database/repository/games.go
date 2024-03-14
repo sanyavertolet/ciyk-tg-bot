@@ -2,6 +2,7 @@ package database
 
 import (
 	model "camus/sanyavertolet/bot/pkg/database/model"
+	"gorm.io/gorm"
 
 	"time"
 )
@@ -76,6 +77,16 @@ func (repo *Repository) FindGameById(id uint) (model.Game, error) {
 	return game, err
 }
 
+func (repo *Repository) FindGameByIdPreloadingRegisteredUsers(id uint) (model.Game, error) {
+	var game model.Game
+	err := repo.DB.
+		Preload("Registrations", orderedByRegistrationsUpdatedAt).
+		Preload("Registrations.User").
+		Where("id = ?", id).
+		First(&game).Error
+	return game, err
+}
+
 func (repo *Repository) FindGameByNameAndDate(name string, date time.Time) (model.Game, error) {
 	var game model.Game
 	err := repo.DB.Where(model.Game{Name: name, Date: date}).Find(&game).Error
@@ -102,11 +113,16 @@ func (repo *Repository) FindNextWeekGames() ([]model.Game, error) {
 	now := time.Now()
 	err := repo.DB.
 		Model(&model.Game{}).
-		Preload("Users").
+		Preload("Registrations", orderedByRegistrationsUpdatedAt).
+		Preload("Registrations.User").
 		Where("date >= ? AND date <= ?", now, now.AddDate(0, 0, 7)).
 		Where("is_registration_open", true).
 		Order("date ASC").
 		Find(&games).Error
 
 	return games, err
+}
+
+func orderedByRegistrationsUpdatedAt(db *gorm.DB) *gorm.DB {
+	return db.Order("registrations.updated_at ASC")
 }

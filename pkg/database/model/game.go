@@ -15,7 +15,6 @@ type Game struct {
 	MaxPlayers         int
 	IsRegistrationOpen bool
 	Registrations      []Registration `gorm:"foreignKey:GameId"`
-	Users              []User         `gorm:"many2many:registrations;"`
 }
 
 func (game *Game) String() string {
@@ -31,17 +30,17 @@ func (game *Game) StringWithUsers() string {
 
 	if !game.IsRegistrationOpen {
 		stringBuilder.WriteString("Запись на эту игру откроется в ближейшее к игре воскресенье в 22:00")
-	} else if len(game.Users) == 0 {
+	} else if len(game.Registrations) == 0 {
 		stringBuilder.WriteString("На эту игру пока никто не записался.")
 	} else {
-		for i, user := range game.Users {
+		for i, registration := range game.Registrations {
 			if i == game.MaxPlayers {
 				stringBuilder.WriteString("\nРезерв:\n")
 			}
-			userTag := fmt.Sprintf("@%s", user.Tag)
-			if user.Tag == "" {
+			userTag := fmt.Sprintf("@%s", registration.User.Tag)
+			if registration.User.Tag == "" {
 				// fixMe: tag users without telegram tag
-				userTag = user.Name
+				userTag = registration.User.Name
 			}
 			stringBuilder.WriteString(fmt.Sprintf("%d. %s\n", i+1, userTag))
 		}
