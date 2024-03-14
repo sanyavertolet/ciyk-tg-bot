@@ -15,8 +15,6 @@ func (repo *Repository) SaveCheckpoint(lastProcessedLineNumber int) (model.Check
 
 func (repo *Repository) GetLastCheckpoint() (model.Checkpoint, error) {
 	var checkpoint = model.Checkpoint{Line: 1}
-	err := repo.DB.
-		Order("created_at DESC").
-		FirstOrCreate(&checkpoint).Error
+	err := repo.DB.Order("created_at DESC").FirstOrCreate(&checkpoint).Error
 	return checkpoint, err
 }
