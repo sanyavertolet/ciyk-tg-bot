@@ -22,19 +22,19 @@ func main() {
 		log.Fatalf("Database initialization error: %v", err)
 	}
 
-	sheetsServices, err := sheets.InitSheets(config.GoogleSheetsKeyFileName, config.GoogleSpreadsheetID)
+	sheetsService, err := sheets.InitSheets(config.GoogleSheetsKeyFileName, config.GoogleSpreadsheetID)
 	if err != nil {
 		log.Fatalf("Google Sheets initialization error: %v", err)
 	}
 
-	sheetsServices.SyncGames(repo)
+	sheetsService.SyncGames(repo)
 
-	cronService, err := cron.InitCron(sheetsServices, repo)
+	cronService, err := cron.InitCron(sheetsService, repo)
 	if err != nil {
 		log.Fatalf("Cron initialization error: %v", err)
 	}
 
-	if err := bot.InitBot(repo, cronService, config.TelegramBotToken); err != nil {
+	if err := bot.InitBot(repo, cronService, sheetsService, config.TelegramBotToken); err != nil {
 		log.Fatalf("Telegram bot initialization error: %v", err)
 	}
 }
