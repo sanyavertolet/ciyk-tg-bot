@@ -3,6 +3,7 @@ module camus/sanyavertolet/bot
 go 1.22.0
 
 require (
+	github.com/carlmjohnson/versioninfo v0.22.5
 	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1
 	github.com/robfig/cron v1.2.0
 	golang.org/x/oauth2 v0.18.0
@@ -14,7 +15,6 @@ require (
 require (
 	cloud.google.com/go/compute v1.23.4 // indirect
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
-	github.com/carlmjohnson/versioninfo v0.22.5 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/go-logr/logr v1.4.1 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
