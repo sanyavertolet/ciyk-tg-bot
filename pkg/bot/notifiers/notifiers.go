@@ -45,10 +45,10 @@ func NotifyHeadOfQueue(bot *tgbotapi.BotAPI, repo *database.Repository, gameId u
 
 func NotifyGameAdded(bot *tgbotapi.BotAPI, repo *database.Repository, game model.Game) {
 	message := fmt.Sprintf(
-		"Новая игра!!\n\n * Что: %s\n * Где?: %s\n * Когда: %s",
+		"Новая игра!!\n\n * Что: %s\n * Где: %s\n * Когда: %s",
 		game.Name,
 		game.Place,
-		game.Date)
+		game.Date.Format("15:04 02.01"))
 
 	keyboard := keyboards.SignKeyboard(game)
 
@@ -63,10 +63,10 @@ func NotifyEverybodyGamesAdded(bot *tgbotapi.BotAPI, repo *database.Repository, 
 
 	for _, game := range games {
 		message := fmt.Sprintf(
-			"Открыта запись на игру!\n\n * Что: %s\n * Где?: %s\n * Когда: %s",
+			"Открыта запись на игру!\n\n * Что: %s\n * Где: %s\n * Когда: %s",
 			game.Name,
 			game.Place,
-			game.Date,
+			game.Date.Format("15:04 02.01"),
 		)
 
 		keyboard := keyboards.SignKeyboard(game)

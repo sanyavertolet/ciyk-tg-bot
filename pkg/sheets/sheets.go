@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	fmtReadRange = "Schedule!A%d:E"
+	fmtReadRange = "Schedule!A%d:F"
 	dateFormat   = "15:04 02.01.2006"
 )
 
@@ -63,13 +63,14 @@ func (sh *Sheets) SyncGames(repo *database.Repository) {
 
 	var games []model.Game
 	for _, row := range response.Values {
-		date, err := time.ParseInLocation(dateFormat, fmt.Sprintf("%s", row[0]), time.Local)
+		dateString := fmt.Sprintf("%s %s", row[1], row[0])
+		date, err := time.ParseInLocation(dateFormat, dateString, time.Local)
 		if err != nil {
 			log.Panic(err)
 		}
 
 		maxPlayers := 9
-		maxPlayers, err = strconv.Atoi(fmt.Sprintf("%s", row[4]))
+		maxPlayers, err = strconv.Atoi(fmt.Sprintf("%s", row[5]))
 		if err != nil {
 			log.Printf("Could not parse maxPlayers, using 9 as default: %v", err)
 			maxPlayers = 9
@@ -77,8 +78,8 @@ func (sh *Sheets) SyncGames(repo *database.Repository) {
 
 		game := model.Game{
 			Date:       date,
-			Name:       fmt.Sprintf("%s %s", row[1], row[2]),
-			Place:      fmt.Sprintf("%s", row[3]),
+			Name:       fmt.Sprintf("%s %s", row[2], row[3]),
+			Place:      fmt.Sprintf("%s", row[4]),
 			MaxPlayers: maxPlayers,
 		}
 
