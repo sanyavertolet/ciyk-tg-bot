@@ -64,7 +64,7 @@ func (sh *Sheets) SyncGames(repo *database.Repository) {
 	var games []model.Game
 	for _, row := range response.Values {
 		dateString := fmt.Sprintf("%s %s", row[1], row[0])
-		date, err := time.ParseInLocation(dateFormat, fmt.Sprintf("%s", dateString), time.Local)
+		date, err := time.ParseInLocation(dateFormat, dateString, time.Local)
 		if err != nil {
 			log.Panic(err)
 		}
